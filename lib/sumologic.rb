@@ -64,31 +64,22 @@ module SumoLogic
     end
 
     def collectors
-      r = @session.get do |req|
-        req.url 'collectors'
-      end
-      return r.body.has_key?('collectors') ? r.body['collectors'] : nil
+      get('collectors')
     end
 
     def collector(collector_id)
-      r = @session.get do |req|
-        req.url 'collectors/' + collector_id.to_s
-      end
-      return r.body.has_key?('collector') ? r.body['collector'] : nil
+      url = 'collectors/' + collector_id.to_s
+      get(url, 'collector')
     end
 
     def collector_sources(collector_id)
-      r = @session.get do |req|
-        req.url 'collectors/' + collector_id.to_s + '/sources'
-      end
-      return r.body.has_key?('sources') ? r.body['sources'] : nil
+      url = 'collectors/' + collector_id.to_s + '/sources'
+      get(url, 'sources')
     end
 
     def collector_source(collector_id, source_id)
-      r = @session.get do |req|
-        req.url 'collectors/' + collector_id.to_s + '/sources/' + source_id.to_s
-      end
-      return r.body.has_key?('source') ? r.body['source'] : nil
+      url = 'collectors/' + collector_id.to_s + '/sources/' + source_id.to_s
+      get(url, 'source')
     end
 
     def create_source(collector_id, params)
@@ -112,10 +103,16 @@ module SumoLogic
 
     private
 
-    def get(url, body, desired_output_key)
-      r = @session.get do |req|
-        req.url url
-        req.body = body
+    def get(url, desired_output_key=nil)
+      desired_output_key ||= url
+      r = nil
+      loop do
+        r = @session.get do |req|
+          req.url url
+        end
+        break if r.to_hash[:url].host == endpoint.host
+        endpoint.host = r.to_hash[:url].host
+        reload_session
       end
 
       return r.body.fetch(desired_output_key, nil) if desired_output_key
