@@ -56,7 +56,7 @@ module SumoLogic
     end
 
     def collectors
-      get('collectors')
+      get('collectors', key: 'collectors')
     end
 
     def collector(collector_id)
@@ -91,35 +91,35 @@ module SumoLogic
 
     private
 
-    def get(url, body = nil, key = nil)
+    def get(url, params)
       r = nil
       loop do
         r = @session.get do |req|
           req.url url
-          req.body = body
+          req.body = params[:body]
         end
         break if r.to_hash[:url].host == endpoint.host
         endpoint.host = r.to_hash[:url].host
         reload_session
       end
 
-      return r.body.fetch(key, nil) if key
+      return r.body.fetch(params[:key], nil) unless params[:key].nil?
       r.body
     end
 
-    def post(url, body, key = nil)
+    def post(url, params)
       r = nil
       loop do
         r = @session.post do |req|
           req.url url
-          req.body = body
+          req.body = params[:body]
         end
         break if r.to_hash[:url].host == endpoint.host
         endpoint.host = r.to_hash[:url].host
         reload_session
       end
 
-      return r.body.fetch(key, nil) if key
+      return r.body.fetch(params[:key], nil) unless params[:key].nil?
       r.body
     end
 
