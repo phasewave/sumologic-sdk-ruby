@@ -2,6 +2,7 @@ require 'faraday'
 require 'faraday_middleware'
 require 'faraday-cookie_jar'
 require 'multi_json'
+require 'json'
 
 module SumoLogic
   VERSION = '0.0.5'.freeze
@@ -76,7 +77,7 @@ module SumoLogic
 
     def create_source(collector_id, params)
       url = 'collectors/' + collector_id.to_s + '/sources'
-      post(url, MultiJson.encode(params), 'source')
+      post(url, params)
     end
 
     def dashboard(dashboard_id)
@@ -109,10 +110,11 @@ module SumoLogic
 
     def post(url, params)
       r = nil
+      payload = params.to_json
       loop do
         r = @session.post do |req|
           req.url url
-          req.body = params[:body]
+          req.body = payload
         end
         break if r.to_hash[:url].host == endpoint.host
         endpoint.host = r.to_hash[:url].host

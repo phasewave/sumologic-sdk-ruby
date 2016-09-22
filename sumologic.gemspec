@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'faraday_middleware', '~> 0', '>= 0'
   s.add_runtime_dependency 'faraday-cookie_jar', '>= 0'
   s.add_runtime_dependency 'multi_json', '>= 0'
+  s.add_runtime_dependency 'json', '>= 0'
 
   s.add_development_dependency 'coveralls'
   s.add_development_dependency 'rake'
